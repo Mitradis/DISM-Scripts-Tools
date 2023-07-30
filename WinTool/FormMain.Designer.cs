@@ -100,6 +100,7 @@
             this.contex_button10 = new System.Windows.Forms.Button();
             this.contex_button8 = new System.Windows.Forms.Button();
             this.tabPage3 = new System.Windows.Forms.TabPage();
+            this.service_button10 = new System.Windows.Forms.Button();
             this.service_button9 = new System.Windows.Forms.Button();
             this.service_button8 = new System.Windows.Forms.Button();
             this.service_button7 = new System.Windows.Forms.Button();
@@ -126,7 +127,6 @@
             this.buttonRefresh = new System.Windows.Forms.Button();
             this.labelLogo = new System.Windows.Forms.Label();
             this.buttonHelp = new System.Windows.Forms.Button();
-            this.service_button10 = new System.Windows.Forms.Button();
             this.tabControl1.SuspendLayout();
             this.tabPage1.SuspendLayout();
             ((System.ComponentModel.ISupportInitialize)(this.pictureBox2)).BeginInit();
