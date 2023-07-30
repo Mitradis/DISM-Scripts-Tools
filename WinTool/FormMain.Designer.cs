@@ -472,6 +472,17 @@
             this.tabPage3.TabIndex = 4;
             this.tabPage3.Text = "Сервис";
             // 
+            // service_button10
+            // 
+            this.service_button10.Font = new System.Drawing.Font("Arial", 9.75F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(204)));
+            this.service_button10.Location = new System.Drawing.Point(6, 350);
+            this.service_button10.Name = "service_button10";
+            this.service_button10.Size = new System.Drawing.Size(235, 30);
+            this.service_button10.TabIndex = 5;
+            this.service_button10.Text = "Обновление сертификатов";
+            this.service_button10.UseVisualStyleBackColor = true;
+            this.service_button10.Click += new System.EventHandler(this.service_button10_Click);
+            // 
             // service_button9
             // 
             this.service_button9.Font = new System.Drawing.Font("Arial", 9.75F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(204)));
@@ -764,21 +775,8 @@
             this.buttonHelp.MouseEnter += new System.EventHandler(this.buttonHelp_MouseEnter);
             this.buttonHelp.MouseLeave += new System.EventHandler(this.buttonHelp_MouseLeave);
             // 
-            // service_button10
-            // 
-            this.service_button10.Font = new System.Drawing.Font("Arial", 9.75F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(204)));
-            this.service_button10.Location = new System.Drawing.Point(6, 350);
-            this.service_button10.Name = "service_button10";
-            this.service_button10.Size = new System.Drawing.Size(235, 30);
-            this.service_button10.TabIndex = 5;
-            this.service_button10.Text = "Обновление сертификатов";
-            this.service_button10.UseVisualStyleBackColor = true;
-            this.service_button10.Click += new System.EventHandler(this.service_button10_Click);
-            // 
             // FormMain
             // 
-            this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
-            this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
             this.ClientSize = new System.Drawing.Size(286, 363);
             this.ControlBox = false;
             this.Controls.Add(this.buttonHelp);
@@ -788,6 +786,7 @@
             this.Controls.Add(this.tabControl1);
             this.Controls.Add(this.labelLogo);
             this.Controls.Add(this.labelMain);
+            this.DoubleBuffered = true;
             this.FormBorderStyle = System.Windows.Forms.FormBorderStyle.None;
             this.Icon = ((System.Drawing.Icon)(resources.GetObject("$this.Icon")));
             this.MaximizeBox = false;
