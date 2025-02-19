@@ -64,7 +64,7 @@ namespace HelpTool
                     Console.WriteLine(russian ? "Не удалось создать ярлык для " + args[0] + " в " + args[1] : "Failed to create shortcut for " + args[0] + " in " + args[1]);
                 }
             }
-            else if (args.Length == 3 && File.Exists(args[0]))
+            else if (args.Length >= 3 && File.Exists(args[0]))
             {
                 List<byte> searchBytes = new List<byte>();
                 List<byte> replaceBytes = new List<byte>();
@@ -74,10 +74,11 @@ namespace HelpTool
                 {
                     try
                     {
+                        bool find = true;
+                        bool write = false;
                         byte[] bytesFile = File.ReadAllBytes(args[0]);
                         int fileSize = bytesFile.Length;
                         int searchSize = searchBytes.Count;
-                        bool find = true;
                         for (int i = 0; i + searchSize < fileSize; i++)
                         {
                             find = true;
@@ -92,16 +93,23 @@ namespace HelpTool
                             if (find)
                             {
                                 Buffer.BlockCopy(replaceBytes.ToArray(), 0, bytesFile, i, searchSize);
-                                if (!File.Exists(args[0] + ".bak"))
+                                write = true;
+                                if (args.Length < 4)
                                 {
-                                    File.Move(args[0], args[0] + ".bak");
+                                    break;
                                 }
-                                File.WriteAllBytes(args[0], bytesFile);
-                                Console.WriteLine(russian ? "Операция замены выполнена." : "Replacement operation completed.");
-                                break;
                             }
                         }
-                        if (!find)
+                        if (write)
+                        {
+                            if (!File.Exists(args[0] + ".bak"))
+                            {
+                                File.Move(args[0], args[0] + ".bak");
+                            }
+                            File.WriteAllBytes(args[0], bytesFile);
+                            Console.WriteLine(russian ? "Операция замены выполнена." : "Replacement operation completed.");
+                        }
+                        else
                         {
                             Console.WriteLine(russian ? "Операция замены не выполнена." : "Replacement operation not completed.");
                         }
@@ -119,7 +127,7 @@ namespace HelpTool
             }
             else
             {
-                Console.WriteLine(russian ? "Примеры: HK[C\\U\\L] адрес \"SID|SID\" \\ файл \"00 00 00\" \"10 10 10\" \\ файл ярлык [папка] [аргументы]" : "Examples: HK[C\\U\\L] path \"SID|SID\" \\ file \"00 00 00\" \"10 10 10\" \\ Or: file shortcut [folder] [arguments]");
+                Console.WriteLine(russian ? "Примеры: HK[C\\U\\L] [путь] \"SID|SID\" \\ [файл] \"00 00 00\" \"10 10 10\" [* множ. замена] \\ [файл] [ярлык] [папка] [аргументы]" : "Examples: HK[C\\U\\L] [path] \"SID|SID\" \\ [file] \"00 00 00\" \"10 10 10\" [* mult. replace] \\ [file] [shortcut] [folder] [arguments]");
             }
         }
         static void hexToByte(List<byte> list, string line)
