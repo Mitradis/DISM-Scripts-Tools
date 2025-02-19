@@ -39,6 +39,8 @@ namespace WinTool
             Path.Combine(folderSystemApps, "Microsoft.Windows.StartMenuExperienceHost_cw5n1h2txyewy", "StartMenuExperienceHost.exe"),
             windows11 ? Path.Combine(folderSystemApps, "MicrosoftWindows.Client.CBS_cw5n1h2txyewy", "SearchHost.exe") : Path.Combine(folderSystemApps, "Microsoft.Windows.Search_cw5n1h2txyewy", "SearchApp.exe")
         };
+        List<string> defaultStartReg = new List<string>() { windows11 ? @"HKEY_CLASSES_ROOT\Local Settings\Software\Microsoft\Windows\CurrentVersion\AppModel\PackageRepository\Packages\MicrosoftWindows.Client.CBS_1000.26100.48.0_x64__cw5n1h2txyewy\MicrosoftWindows.Client.CBS_cw5n1h2txyewy!CortanaUI" : @"HKEY_CLASSES_ROOT\Local Settings\Software\Microsoft\Windows\CurrentVersion\AppModel\PackageRepository\Packages\Microsoft.Windows.Search_1.14.17.19041_neutral_neutral_cw5n1h2txyewy"
+        };
         string screenClippingHost = windows11 ? Path.Combine(folderSystemApps, "MicrosoftWindows.Client.Core_cw5n1h2txyewy", "ScreenClippingHost.exe") : Path.Combine(folderSystemApps, "MicrosoftWindows.Client.CBS_cw5n1h2txyewy", "ScreenClippingHost.exe");
         string smartScreen = Path.Combine(folderSystem, "smartscreen.exe");
         string edgeUpdate = Path.Combine(programFilesX86, "Microsoft", "EdgeUpdate");
@@ -72,6 +74,7 @@ namespace WinTool
             if (culture.IndexOf("chinese", StringComparison.OrdinalIgnoreCase) < 0)
             {
                 defaultStart.Add(Path.Combine(folderSystemApps, "MicrosoftWindows.Client.CBS_cw5n1h2txyewy", "TextInputHost.exe"));
+                defaultStartReg.Add(windows11 ? @"HKEY_CLASSES_ROOT\Local Settings\Software\Microsoft\Windows\CurrentVersion\AppModel\PackageRepository\Packages\MicrosoftWindows.Client.CBS_1000.26100.48.0_x64__cw5n1h2txyewy\MicrosoftWindows.Client.CBS_cw5n1h2txyewy!InputApp" : @"HKEY_CLASSES_ROOT\Local Settings\Software\Microsoft\Windows\CurrentVersion\AppModel\PackageRepository\Packages\MicrosoftWindows.Client.CBS_1000.19061.1000.0_x64__cw5n1h2txyewy\MicrosoftWindows.Client.CBS_cw5n1h2txyewy!InputApp");
             }
             refrashValues();
             string[] args = Environment.GetCommandLineArgs();
@@ -387,7 +390,7 @@ namespace WinTool
             } : new List<string>() {
                 @"[HKEY_LOCAL_MACHINE\SOFTWARE\Microsoft\Windows\CurrentVersion\Policies\System]",
                 "\"EnableLUA\"=dword:00000001"
-            }, 2);
+            });
             refrashValues();
         }
         void service_button8_Click(object sender, EventArgs e)
@@ -428,7 +431,7 @@ namespace WinTool
             } : new List<string>() {
                 @"[HKEY_LOCAL_MACHINE\SYSTEM\ControlSet001\Services\mpssvc]",
                 "\"Start\"=dword:00000002"
-            }, 2);
+            });
             MessageBox.Show(sRestart);
             refrashValues();
         }
@@ -442,8 +445,8 @@ namespace WinTool
                 "\"Start\"=dword:00000002",
                 @"[HKEY_LOCAL_MACHINE\SYSTEM\ControlSet001\Services\InstallService]",
                 "\"Start\"=dword:00000003"
-            }, 1);
-            blockUnblock(service_button10.ForeColor != Color.Red, smartScreen, false, 2);
+            });
+            blockUnblock(service_button10.ForeColor != Color.Red, smartScreen, false);
             MessageBox.Show(sRestart);
             refrashValues();
         }
@@ -467,7 +470,7 @@ namespace WinTool
                 }
                 deleteFolder(edgeUpdate);
             }
-            blockUnblock(service_button12.ForeColor != Color.Red, edgeUpdate, true, 1);
+            blockUnblock(service_button12.ForeColor != Color.Red, edgeUpdate, true);
             importRegistry(service_button12.ForeColor != Color.Red ? new List<string>() {
                 @"[HKEY_LOCAL_MACHINE\SOFTWARE\WOW6432Node\Microsoft\Windows\CurrentVersion\Uninstall\Microsoft Edge]",
                 "\"DisplayVersion\"=\"999.999.999.999\"",
@@ -510,29 +513,21 @@ namespace WinTool
                 "\"pv\"=\"90.0.0.0\"",
                 @"[HKEY_LOCAL_MACHINE\SOFTWARE\WOW6432Node\Microsoft\EdgeUpdate\ClientState\{F3C4FE00-EFD5-403B-9569-398A20F1BA4A}]",
                 "\"pv\"=\"90.0.0.0\""
-            }, 2);
+            });
             refrashValues();
         }
         void service_button13_Click(object sender, EventArgs e)
         {
-            blockUnblock(service_button13.ForeColor != Color.Red, screenClippingHost, false, 2);
+            blockUnblock(service_button13.ForeColor != Color.Red, screenClippingHost, false);
             refrashValues();
         }
         void service_button14_Click(object sender, EventArgs e)
         {
-            tabControl1.Enabled = false;
-            bool block = service_button14.ForeColor != Color.Red;
             foreach (string line in defaultStart)
             {
-                blockUnblock(block, line);
+                blockUnblock(service_button14.ForeColor != Color.Red, line, false);
             }
-            if (!windows11)
-            {
-                toggleButton(((Button)sender).ForeColor == Color.Red, new List<string>() {
-                @"HKEY_CLASSES_ROOT\Local Settings\Software\Microsoft\Windows\CurrentVersion\AppModel\PackageRepository\Packages\Microsoft.Windows.Search_1.14.17.19041_neutral_neutral_cw5n1h2txyewy"
-            });
-            }
-            tabControl1.Enabled = true;
+            toggleButton(((Button)sender).ForeColor == Color.Red, defaultStartReg);
             refrashValues();
         }
         void service_button15_Click(object sender, EventArgs e)
@@ -542,7 +537,7 @@ namespace WinTool
             } : new List<string>() {
                 @"[-HKEY_CURRENT_USER\SOFTWARE\CLASSES\CLSID\{86CA1AA0-34AA-4E8B-A509-50C905BAE2A2}\InprocServer32]",
                 "@=\"\""
-            }, 2);
+            });
             refrashValues();
             if (Visible)
             {
@@ -686,30 +681,21 @@ namespace WinTool
             }
         }
         // ------------------------------------------------ BORDER OF FUNCTION ------------------------------------------------ //
-        void importRegistry(List<string> list, int block = 0)
+        void importRegistry(List<string> list)
         {
-            if (block > 0)
-            {
-                tabControl1.Enabled = false;
-            }
+            tabControl1.Enabled = false;
             list.Insert(0, "Windows Registry Editor Version 5.00");
             if (writeToFile(tempImport, list))
             {
                 startProcess(0, "import \"" + tempImport + "\"");
                 deleteFile(tempImport);
             }
-            if (block > 1)
-            {
-                tabControl1.Enabled = true;
-            }
+            tabControl1.Enabled = true;
         }
         // ------------------------------------------------ BORDER OF FUNCTION ------------------------------------------------ //
-        void blockUnblock(bool deny, string path, bool folder = false, int block = 0)
+        void blockUnblock(bool deny, string path, bool folder = false)
         {
-            if (block > 0)
-            {
-                tabControl1.Enabled = false;
-            }
+            tabControl1.Enabled = false;
             if (deny)
             {
                 if (folder)
@@ -728,10 +714,7 @@ namespace WinTool
             {
                 startProcess(4, "-windowstyle hidden -executionpolicy remotesigned -Command \"& Get-Acl -Path '" + (folder ? Path.Combine(programFilesX86, "Microsoft") : Path.Combine(folderSystem, "control.exe")) + "' | Set-Acl -Path '" + path + "'\"");
             }
-            if (block > 1)
-            {
-                tabControl1.Enabled = true;
-            }
+            tabControl1.Enabled = true;
         }
         // ------------------------------------------------ BORDER OF FUNCTION ------------------------------------------------ //
         void startProcess(int index, string args = null)
