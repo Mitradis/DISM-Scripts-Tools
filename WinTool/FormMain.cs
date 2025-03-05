@@ -165,6 +165,7 @@ namespace WinTool
             else
             {
                 contex_PinToHomeFile.Visible = false;
+                service_NewContexMenu.Visible = false;
                 setColor(contex_StartMenuExt, @"HKEY_CLASSES_ROOT\exefile\shellex\ContextMenuHandlers\StartMenuExt");
                 setColor(thispc_Desktop, @"HKEY_LOCAL_MACHINE\SOFTWARE\Microsoft\Windows\CurrentVersion\Explorer\MyComputer\NameSpace\{B4BFCC3A-DB2C-424C-B029-7FE99A87C641}");
                 setColor(thispc_Documents, @"HKEY_LOCAL_MACHINE\SOFTWARE\Microsoft\Windows\CurrentVersion\Explorer\MyComputer\NameSpace\{D3162B92-9365-467A-956B-92703ACA08AF}");
@@ -173,7 +174,6 @@ namespace WinTool
                 setColor(thispc_Images, @"HKEY_LOCAL_MACHINE\SOFTWARE\Microsoft\Windows\CurrentVersion\Explorer\MyComputer\NameSpace\{24ad3ad4-a569-4530-98e1-ab02f9417aa8}");
                 setColor(thispc_Music, @"HKEY_LOCAL_MACHINE\SOFTWARE\Microsoft\Windows\CurrentVersion\Explorer\MyComputer\NameSpace\{3dfdf296-dbec-4fb4-81d1-6a3438bcf4de}");
                 setColor(thispc_Video, @"HKEY_LOCAL_MACHINE\SOFTWARE\Microsoft\Windows\CurrentVersion\Explorer\MyComputer\NameSpace\{f86fa3ab-70d2-4fc7-9c99-fcbf05467f3a}");
-                service_NewContexMenu.Visible = false;
             }
             setColor(service_UAC, @"HKEY_LOCAL_MACHINE\SOFTWARE\Microsoft\Windows\CurrentVersion\Policies\System", "EnableLUA", "1");
             setColor(service_Firewall, @"HKEY_LOCAL_MACHINE\SYSTEM\ControlSet001\Services\mpssvc", "Start", "2");
@@ -621,18 +621,21 @@ namespace WinTool
                 bool enabled = getValue(list[i]);
                 if ((add && disabled) || (!add && enabled))
                 {
-                    removeList.Add("[-" + (add ? list[i] : wtRegPath + list[i]) + "]");
                     startProcess(0, "export " + "\"" + (add ? wtRegPath + list[i] : list[i]) + "\" " + "\"" + tempExport + "\"");
                     if (File.Exists(tempExport))
                     {
-                        removeList.Add("[-" + (add ? wtRegPath + list[i] : list[i]) + "]");
                         List<string> exportFile = new List<string>(readTextFile(tempExport));
                         deleteFile(tempExport);
-                        foreach (string line in exportFile)
+                        if (exportFile.Count > 0)
                         {
-                            if (!String.IsNullOrEmpty(line) && line.IndexOf("Windows Registry Editor Version", StringComparison.OrdinalIgnoreCase) < 0)
+                            removeList.Add("[-" + (add ? list[i] : wtRegPath + list[i]) + "]");
+                            removeList.Add("[-" + (add ? wtRegPath + list[i] : list[i]) + "]");
+                            foreach (string line in exportFile)
                             {
-                                importList.Add(line.StartsWith("[") ? line.Replace(add ? wtRegPath + list[i] : list[i], add ? list[i] : wtRegPath + list[i]) : line);
+                                if (!String.IsNullOrEmpty(line) && line.IndexOf("Windows Registry Editor Version", StringComparison.OrdinalIgnoreCase) < 0)
+                                {
+                                    importList.Add(line.StartsWith("[") ? line.Replace(add ? wtRegPath + list[i] : list[i], add ? list[i] : wtRegPath + list[i]) : line);
+                                }
                             }
                         }
                         exportFile.Clear();
