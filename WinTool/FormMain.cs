@@ -34,13 +34,13 @@ namespace WinTool
             Path.Combine(folderSystem, "sc.exe"),
             Path.Combine(folderSystem, "net.exe"),
             Path.Combine(folderSystem, "mountvol.exe"),
-            Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.CommonApplicationData), "PostClear", "WinHelp.html")
+            Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.CommonApplicationData), "PostClear", "WinTool.html")
         };
         List<string> defaultStart = new List<string>() {
             Path.Combine(folderSystemApps, "Microsoft.Windows.StartMenuExperienceHost_cw5n1h2txyewy", "StartMenuExperienceHost.exe"),
             windows11 ? Path.Combine(folderSystemApps, "MicrosoftWindows.Client.CBS_cw5n1h2txyewy", "SearchHost.exe") : Path.Combine(folderSystemApps, "Microsoft.Windows.Search_cw5n1h2txyewy", "SearchApp.exe")
         };
-        List<string> defaultStartReg = new List<string>() { windows11 ? @"HKEY_CLASSES_ROOT\Local Settings\Software\Microsoft\Windows\CurrentVersion\AppModel\PackageRepository\Packages\MicrosoftWindows.Client.CBS_1000.26100.48.0_x64__cw5n1h2txyewy\MicrosoftWindows.Client.CBS_cw5n1h2txyewy!CortanaUI" : @"HKEY_CLASSES_ROOT\Local Settings\Software\Microsoft\Windows\CurrentVersion\AppModel\PackageRepository\Packages\Microsoft.Windows.Search_1.14.17.19041_neutral_neutral_cw5n1h2txyewy"
+        List<string> defaultStartReg = new List<string>() { windows11 ? @"HKEY_CLASSES_ROOT\Local Settings\Software\Microsoft\Windows\CurrentVersion\AppModel\PackageRepository\Packages\Microsoft.Windows.StartMenuExperienceHost_10.0.26100.3323_neutral_neutral_cw5n1h2txyewy" : @"HKEY_CLASSES_ROOT\Local Settings\Software\Microsoft\Windows\CurrentVersion\AppModel\PackageRepository\Packages\Microsoft.Windows.StartMenuExperienceHost_10.0.19041.5438_neutral_neutral_cw5n1h2txyewy", windows11 ? @"HKEY_CLASSES_ROOT\Local Settings\Software\Microsoft\Windows\CurrentVersion\AppModel\PackageRepository\Packages\MicrosoftWindows.Client.CBS_1000.26100.54.0_x64__cw5n1h2txyewy\MicrosoftWindows.Client.CBS_cw5n1h2txyewy!CortanaUI" : @"HKEY_CLASSES_ROOT\Local Settings\Software\Microsoft\Windows\CurrentVersion\AppModel\PackageRepository\Packages\Microsoft.Windows.Search_1.14.17.19041_neutral_neutral_cw5n1h2txyewy"
         };
         string screenClippingHost = windows11 ? Path.Combine(folderSystemApps, "MicrosoftWindows.Client.Core_cw5n1h2txyewy", "ScreenClippingHost.exe") : Path.Combine(folderSystemApps, "MicrosoftWindows.Client.CBS_cw5n1h2txyewy", "ScreenClippingHost.exe");
         string smartScreen = Path.Combine(folderSystem, "smartscreen.exe");
@@ -51,6 +51,7 @@ namespace WinTool
         string wtRegPath = @"HKEY_LOCAL_MACHINE\SOFTWARE\WinTool\";
         string eDelete = russian ? "Не удалось удалить: " : "Failed to delete: ";
         string eFailure = russian ? "Неудачно" : "Failure";
+        string eKey = russian ? "Не удалось найти ключ, так же отсутствует в выключенных (скопировано в буфер обмена): " : "Could not find the key, also missing in the disabled (copied to clipboard): ";
         string eRead = russian ? "Не удалось прочитать файл: " : "Failed to read file: ";
         string eRegistry = russian ? "Ошибка доступа к реестру: " : "Error accessing registry: ";
         string eStart = russian ? "Не удалось запустить процесс (скопировано в буфер обмена): " : "Failed to start process (copied to clipboard): ";
@@ -67,6 +68,7 @@ namespace WinTool
         string sRestart = russian ? "При изменении требуется перезагрузка." : "Changes require a reboot.";
         string sRestore = russian ? "Удалить задачу автоматического создания точек восстановления?" : "Delete the automatic restore point creation task?";
         string sTotal = russian ? "Всего: " : "Total: ";
+        bool argsRun = false;
         const int CS_DBLCLKS = 0x8;
         const int WS_MINIMIZEBOX = 0x20000;
         Point lastLocation;
@@ -77,7 +79,7 @@ namespace WinTool
             if (culture.IndexOf("chinese", StringComparison.OrdinalIgnoreCase) < 0)
             {
                 defaultStart.Add(Path.Combine(folderSystemApps, "MicrosoftWindows.Client.CBS_cw5n1h2txyewy", "TextInputHost.exe"));
-                defaultStartReg.Add(windows11 ? @"HKEY_CLASSES_ROOT\Local Settings\Software\Microsoft\Windows\CurrentVersion\AppModel\PackageRepository\Packages\MicrosoftWindows.Client.CBS_1000.26100.48.0_x64__cw5n1h2txyewy\MicrosoftWindows.Client.CBS_cw5n1h2txyewy!InputApp" : @"HKEY_CLASSES_ROOT\Local Settings\Software\Microsoft\Windows\CurrentVersion\AppModel\PackageRepository\Packages\MicrosoftWindows.Client.CBS_1000.19061.1000.0_x64__cw5n1h2txyewy\MicrosoftWindows.Client.CBS_cw5n1h2txyewy!InputApp");
+                defaultStartReg.Add(windows11 ? @"HKEY_CLASSES_ROOT\Local Settings\Software\Microsoft\Windows\CurrentVersion\AppModel\PackageRepository\Packages\MicrosoftWindows.Client.CBS_1000.26100.54.0_x64__cw5n1h2txyewy\MicrosoftWindows.Client.CBS_cw5n1h2txyewy!InputApp" : @"HKEY_CLASSES_ROOT\Local Settings\Software\Microsoft\Windows\CurrentVersion\AppModel\PackageRepository\Packages\MicrosoftWindows.Client.CBS_1000.19061.1000.0_x64__cw5n1h2txyewy\MicrosoftWindows.Client.CBS_cw5n1h2txyewy!InputApp");
             }
             refrashValues();
             string[] args = Environment.GetCommandLineArgs();
@@ -87,9 +89,10 @@ namespace WinTool
                 {
                     if (line.StartsWith("-setup", StringComparison.OrdinalIgnoreCase))
                     {
+                        argsRun = true;
                         uint mask = 0;
                         bool parse = UInt32.TryParse(line.Remove(0, line.IndexOf("=") + 1), out mask);
-                        List<Button> buttons = (parse && windows11) || (!parse && line.EndsWith("!")) ? new List<Button>() { contex_PinToTaskbar, contex_PintoStartScreen, contex_PinToHome, contex_Compatibility, contex_ModernSharing, contex_SendTo, contex_Sharing, contex_LibraryLocation, contex_PinToHomeFile, service_EdgeUpdate, service_Sketch, service_DefaultStart, service_NewContexMenu } : new List<Button>() { contex_PinToTaskbar, contex_PintoStartScreen, contex_PinToHome, contex_Compatibility, contex_ModernSharing, contex_SendTo, contex_Sharing, contex_LibraryLocation, contex_StartMenuExt, thispc_3DObjects, thispc_Downloads, thispc_Images, thispc_Music, thispc_Video, service_EdgeUpdate, service_Sketch, service_DefaultStart };
+                        List<Button> buttons = windows11 ? new List<Button>() { contex_PinToTaskbar, contex_PintoStartScreen, contex_PinToHome, contex_Compatibility, contex_ModernSharing, contex_SendTo, contex_Sharing, contex_LibraryLocation, contex_PinToHomeFile, service_EdgeUpdate, service_Sketch, service_DefaultStart, service_NewContexMenu } : new List<Button>() { contex_PinToTaskbar, contex_PintoStartScreen, contex_PinToHome, contex_Compatibility, contex_ModernSharing, contex_SendTo, contex_Sharing, contex_LibraryLocation, contex_StartMenuExt, thispc_3DObjects, thispc_Downloads, thispc_Images, thispc_Music, thispc_Video, service_EdgeUpdate, service_Sketch, service_DefaultStart };
                         List<string> list = new List<string>();
                         uint total = 0;
                         int count = buttons.Count - 1;
@@ -148,6 +151,10 @@ namespace WinTool
         // ------------------------------------------------ BORDER OF FUNCTION ------------------------------------------------ //
         void refrashValues()
         {
+            if (argsRun)
+            {
+                return;
+            }
             setColor(contex_PinToTaskbar, @"HKEY_CLASSES_ROOT\*\shellex\ContextMenuHandlers\{90AA3A4E-1CBA-4233-B8BB-535773D48449}");
             setColor(contex_PintoStartScreen, @"HKEY_CLASSES_ROOT\exefile\shellex\ContextMenuHandlers\PintoStartScreen");
             setColor(contex_PinToHome, @"HKEY_CLASSES_ROOT\Folder\shell\pintohome");
@@ -466,7 +473,7 @@ namespace WinTool
         }
         void service_EdgeUpdate_Click(object sender, EventArgs e)
         {
-            if (Directory.Exists(edgeUpdate) && getAccessFolder(edgeUpdate))
+            if (service_EdgeUpdate.ForeColor != Color.Red && Directory.Exists(edgeUpdate) && getAccessFolder(edgeUpdate))
             {
                 stopProcess("msedge.exe");
                 foreach (string line in Directory.GetFileSystemEntries(edgeUpdate, "*.exe", SearchOption.AllDirectories))
@@ -479,6 +486,8 @@ namespace WinTool
             importRegistry(service_EdgeUpdate.ForeColor != Color.Red ? new List<string>() {
                 @"[HKEY_LOCAL_MACHINE\SOFTWARE\WOW6432Node\Microsoft\Windows\CurrentVersion\Uninstall\Microsoft Edge]",
                 "\"DisplayVersion\"=\"999.999.999.999\"",
+                "\"Version\"=\"999.999.999.999\"",
+                @"[HKEY_LOCAL_MACHINE\SOFTWARE\WOW6432Node\Microsoft\Windows\CurrentVersion\Uninstall\Microsoft Edge Update]",
                 "\"Version\"=\"999.999.999.999\"",
                 @"[HKEY_LOCAL_MACHINE\SOFTWARE\WOW6432Node\Microsoft\Windows\CurrentVersion\Uninstall\Microsoft EdgeWebView]",
                 "\"DisplayVersion\"=\"999.999.999.999\"",
@@ -501,6 +510,8 @@ namespace WinTool
                 @"[HKEY_LOCAL_MACHINE\SOFTWARE\WOW6432Node\Microsoft\Windows\CurrentVersion\Uninstall\Microsoft Edge]",
                 "\"DisplayVersion\"=\"90.0.0.0\"",
                 "\"Version\"=\"90.0.0.0\"",
+                @"[HKEY_LOCAL_MACHINE\SOFTWARE\WOW6432Node\Microsoft\Windows\CurrentVersion\Uninstall\Microsoft Edge Update]",
+                "\"Version\"=\"1.0.0.0\"",
                 @"[HKEY_LOCAL_MACHINE\SOFTWARE\WOW6432Node\Microsoft\Windows\CurrentVersion\Uninstall\Microsoft EdgeWebView]",
                 "\"DisplayVersion\"=\"90.0.0.0\"",
                 "\"Version\"=\"90.0.0.0\"",
@@ -543,7 +554,10 @@ namespace WinTool
                 "@=\"\""
             });
             refrashValues();
-            MessageBox.Show(sRestart);
+            if (Visible)
+            {
+                MessageBox.Show(sRestart);
+            }
         }
         // ------------------------------------------------ BORDER OF FUNCTION ------------------------------------------------ //
         void thispc_Desktop_Click(object sender, EventArgs e)
@@ -640,6 +654,11 @@ namespace WinTool
                         }
                         exportFile.Clear();
                     }
+                }
+                else if (!disabled && !enabled)
+                {
+                    Clipboard.SetText(list[i]);
+                    MessageBox.Show(eKey + list[i]);
                 }
             }
             importRegistry(removeList);

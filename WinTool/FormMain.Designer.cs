@@ -202,7 +202,7 @@
             this.service_EdgeUpdate.Name = "service_EdgeUpdate";
             this.service_EdgeUpdate.Size = new System.Drawing.Size(235, 30);
             this.service_EdgeUpdate.TabIndex = 16;
-            this.service_EdgeUpdate.Text = "Edge Update";
+            this.service_EdgeUpdate.Text = "Edge Update \\ EdgeWebView";
             this.service_EdgeUpdate.UseVisualStyleBackColor = true;
             this.service_EdgeUpdate.Click += new System.EventHandler(this.service_EdgeUpdate_Click);
             // 
