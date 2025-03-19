@@ -445,6 +445,7 @@ namespace WinTool
                 @"[HKEY_LOCAL_MACHINE\SYSTEM\ControlSet001\Services\mpssvc]",
                 "\"Start\"=dword:00000002"
             });
+            blockUnblock(service_Firewall.ForeColor != Color.Red, smartScreen, false);
             refrashValues();
             MessageBox.Show(sRestart);
         }
