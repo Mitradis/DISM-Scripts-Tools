@@ -445,9 +445,8 @@ namespace WinTool
                 @"[HKEY_LOCAL_MACHINE\SYSTEM\ControlSet001\Services\mpssvc]",
                 "\"Start\"=dword:00000002"
             });
-            blockUnblock(service_Firewall.ForeColor != Color.Red, smartScreen, false);
             refrashValues();
-            MessageBox.Show(sRestart);
+            smartScreenCheck();
         }
         void service_Store_Click(object sender, EventArgs e)
         {
@@ -460,8 +459,12 @@ namespace WinTool
                 @"[HKEY_LOCAL_MACHINE\SYSTEM\ControlSet001\Services\InstallService]",
                 "\"Start\"=dword:00000003"
             });
-            blockUnblock(service_Store.ForeColor != Color.Red, smartScreen, false);
             refrashValues();
+            smartScreenCheck();
+        }
+        void smartScreenCheck()
+        {
+            blockUnblock(service_Firewall.ForeColor == Color.Red && service_Store.ForeColor == Color.Red, smartScreen, false);
             MessageBox.Show(sRestart);
         }
         void service_SystemRestore_Click(object sender, EventArgs e)
